@@ -43,7 +43,7 @@
 # - __*math*__: to use accurate values of $\pi$;
 # - __*matplotlib*__: for data visualization.
 
-# In[1]:
+# In[41]:
 
 
 # -*- coding: utf-8 -*-
@@ -72,7 +72,7 @@ import os
 # 
 # To estimate $h$, the function needs as inputs the actual conditions and IVC conditions with the value of $u_p$ and of the bore, as reported in the code hereafter. Moreover, the value of $C_3$ is also an input as it will be changed over the iterations.
 
-# In[2]:
+# In[42]:
 
 
 # FUNCTIONS
@@ -120,7 +120,7 @@ def get_woschni_coeff(P_act, T_act, V_act, P_ivc, T_ivc, V_ivc, u_avg, bore_, C3
 # 
 # From these values $\gamma$ is derived as $\gamma = \frac{c_p}{c_v}$.
 
-# In[3]:
+# In[43]:
 
 
 # Define function to get the constant-pressure specific heat
@@ -139,7 +139,7 @@ def get_cp(T_, janaf_, comp_):
 # 
 # The function *moving_average* takes as input the vector *a* and the integer *n* which represents the number of values over which the smoothing will be applied. The output vector *ret* will contain the averaged value over *n* values and will have *n - 1* elements less with respect to the input vector.
 
-# In[4]:
+# In[44]:
 
 
 # Define function to compute integration with trapezoidal method
@@ -167,7 +167,7 @@ def moving_average(a, n):
 # 
 # In order to run the script it is necessary to firstly introduce some inputs. In particular the values of Intake Valve Closing (IVC), Exhaust Valve Opening (EVO), Spark Advance (SA) and engine regime have to be set:
 
-# In[5]:
+# In[45]:
 
 
 # Initial preparation for the script
@@ -186,7 +186,7 @@ speed_ = rps_*360
 
 # Moreover, the geometrical aspects of the experimental (and simulated) engine have to be specified:
 
-# In[6]:
+# In[46]:
 
 
 # Geometry of the engine
@@ -208,7 +208,7 @@ V_disp = stroke_*bore_**2/4*math.pi     # displaced volume
 
 # To estimate the heat transfer between the mixture and the combustion chamber walls the temperature of each surface has to be set.
 
-# In[7]:
+# In[47]:
 
 
 # Temperature of the head, liner and piston top
@@ -219,7 +219,7 @@ T_walls = [450, 450, 500]
 # 
 # With $m$ and $m_f$ it is possible to derive the mass of fresh air as $m_a = m - m_f$.
 
-# In[8]:
+# In[48]:
 
 
 # Total mass at intake valve closing (air+fuel) [kg] (experimental)
@@ -233,7 +233,7 @@ eff_comb = 0.932
 
 # In this section of the code, the inputs regarding the chemical aspects of the mixture are specified. In particular the Lower Heating Value ($LHV$ in [kJ/kg]), the Molar Mass ($\textit{MM}$ in [kg/kmol]), the Janaf coefficients and the atomic composition of the fuel have to be introduced.
 
-# In[9]:
+# In[49]:
 
 
 # This script considers only the possibility of having the following species in this order
@@ -261,7 +261,7 @@ atoms_fuel = np.array([0, 3, 0, 1])
 
 # Now it is possible to set the other chemical parameters for the four remaining species. These properties should not be changed. In this code fresh air is considered as a mixture composed by 79% $N_2$ and 21% $O_2$ on a molar basis.
 
-# In[10]:
+# In[50]:
 
 
 # Molar Masses
@@ -302,7 +302,7 @@ janaf_5000 = np.transpose(np.vstack([janaf_5000, janaf_5000_fuel]))
 # 
 # $$Q_\textit{comb} = m_f \cdot \eta_\textit{comb} \cdot \textit{LHV}$$
 
-# In[11]:
+# In[51]:
 
 
 # Compute stochiometric air/fuel ratio
@@ -318,7 +318,7 @@ Q_comb = mf_*eff_comb*LHV_*1000
 # 
 # Having defined all the necessary inputs, it is possible to compute the molar compositions of both the fresh and burnt mixtures ($\overline{X}_\textit{fresh}$ and $\overline{X}_\textit{burnt}$) and their molar mass as they will be later used to estimate the $\gamma$. For the burnt composition, a perfect combustion of the fresh mixture on the value of $\phi$ is considered. The only product of combustion considered from the fuel combustion are $N_2$, $CO_2$ and $H_2O$.
 
-# In[12]:
+# In[52]:
 
 
 # Compute the composition of the ideally burned mixture
@@ -341,8 +341,7 @@ if phi_ <= 1:  # lean combustion
 else:          # rich or stochiometric combustion
     mol_comb_burnt = fresh_moles[1]/(atoms_fuel[0] + atoms_fuel[1] /
                                      4 - atoms_fuel[2]/2)              # moles of fuel that can burn
-    burnt_moles[0] = fresh_moles[0] + mol_comb_burnt * \               # N2
-        (atoms_fuel[3]/2)
+    burnt_moles[0] = fresh_moles[0] + mol_comb_burnt *         (atoms_fuel[3]/2)                                              # N2
     burnt_moles[1] = 0                                                 # O2
     burnt_moles[2] = fresh_moles[2] + mol_comb_burnt*(atoms_fuel[0])   # CO2
     burnt_moles[3] = fresh_moles[3] + mol_comb_burnt*(atoms_fuel[1]/2) # H2O
@@ -361,7 +360,7 @@ MM_burnt = np.inner(MM_, burnt_comp)
 # 
 # Firstly, the experimental data are read from the "*Experimental.csv*" file. This file has as first column the crank angles and as second column the pressure in [bar], separated by a comma. The values of crank angle and pressure are then stored in two vectors. If necessary, it is possible to apply a smoothing function to the pressure vector.
 
-# In[ ]:
+# In[53]:
 
 
 # Read experimental data from csv with first column angles and second column pressure in [Bar]
@@ -375,7 +374,7 @@ pressure_vect = moving_average(pressure_vect, 1)
 
 # The volume of the cylinder is a function of the crank angle the geometrical characteristics of the cylinder itsef.
 
-# In[ ]:
+# In[54]:
 
 
 # Compute volume and surface vectors as function of the crank angle
@@ -391,7 +390,7 @@ surf_liner_vect = stroke_vect*math.pi*bore_
 # 
 # The pressure, volume and surface vectors are filtered in the same manner and it is now possible to compute the derivative of pressure and cylinder volume.
 
-# In[ ]:
+# In[55]:
 
 
 # Filter experimental data (to reduce oscillations in post)
@@ -435,7 +434,7 @@ dVolume = volume_filt[1:len(volume_filt)] - volume_filt[0:len(volume_filt)-1]
 
 # In order to start the iterative process, a first guess of the $\textit{AHRR}$ with a constant $\gamma$ is computed.
 
-# In[ ]:
+# In[56]:
 
 
 # Start of the iterative process to compute the Heat Release Rate
@@ -457,7 +456,7 @@ AHRR = np.append(AHRR, 0)
 # 
 # After this operation, the Start Of Combustion (SOC) and End Of Combustion (EOC) angles are identified. The SOC is set to be equal to the SA, while the EOC is identified as the angle at which $\textit{AHR}$ is positive and the value of $\textit{AHRR}$ at the same angle is negative. This angle is used as EOC with the hypothesis that combustion has ended as the value of $\textit{AHRR}$ is equal to the heat exchanged with the walls, which is negative because the temperature of the burned charge is greater than the one of the walls.
 
-# In[ ]:
+# In[57]:
 
 
 # Compute cumulated value of AHRR and shift to have non-negative values
@@ -475,7 +474,7 @@ ind_EOC = np.where(angle_filt == EOC)[0][0]
 
 # To compute a first estimation of the heat exchanged, and so the $\textit{HRR}$, the temperature of the mixture and the heat transfer coefficient $h$ have to be evaluated at each crank angle. In order to do so, the instantaneous composition of the charge is computed as a function of the burned mass fraction $x_b$. The value of $x_b$ at each crank angle can be estimated from the vector $\overline{\textit{AHR}}$ by normalizing it and multiplying it by $\eta_\textit{comb}$. With this operation, the vector $\overline{x}_b$ is obtained and can be used to evaluate the mixture composition.
 
-# In[ ]:
+# In[58]:
 
 
 # First guess of Xb (burned mass fraction)
@@ -513,7 +512,7 @@ R_ist = np.zeros(len(angle_filt))
 # 
 # The value of $p, V, m$ and $R^*$ are taken at the same angle and the output of this operation is another vector containing the temperature values. Moreover, the conditions at IVC are identified and stored in specific variables as they will be needed later.
 
-# In[ ]:
+# In[59]:
 
 
 # Compute the molar composition at each angle
@@ -536,7 +535,7 @@ T_IVC = P_IVC * V_IVC / (mass_*R_IVC)
 
 # Finally, it is possible to estimate the heat transfer coefficient $h$ and the heat exchanged with the combustion chamber's surfaces. Firstly, the vector containing the value of the tuning constant $C_3$ has to be populated. This vector is set equal to $0$ until SOC, and after it a fixed value is used. This value which will be changed over the iterations to reach convergence with the experimental heat released by combustion.
 
-# In[ ]:
+# In[60]:
 
 
 # Value of C3 (in Woschni's model) for compression
@@ -565,7 +564,7 @@ C3_filt[np.where(HR_fg > 0)] = C3_comb
 # 
 # where $\textit{HR}(end)$ is the last value of the $\textit{HR}$ vector, and its physical meaning is the estimation of the heat released by the fuel combustion.
 
-# In[ ]:
+# In[61]:
 
 
 dQ_filt = np.zeros(len(angle_filt))
@@ -620,7 +619,7 @@ err = (HR[-1] - Q_comb)/Q_comb*100
 # 
 # The code also prints the new coefficient used and the error at the end of the iteration.
 
-# In[ ]:
+# In[62]:
 
 
 # Start the iteration
@@ -732,7 +731,7 @@ while abs(err) > 0.1 and iteraz <= 1000:
 # 
 # The simulated data is read from two comma separated values files that have to be present in the folder where the program is saved (otherwise the path has to be changed). From the "*burntMass.csv*" file the $\textit{HRR}$ computed by the simulations is extracted, while from "*cylPres.csv*" the simulated in-cylinder pressure is obtained.
 
-# In[ ]:
+# In[63]:
 
 
 # %% Read data from simulations
@@ -742,7 +741,7 @@ cylPress = np.loadtxt('./cylPres.csv', delimiter=",", skiprows=2)
 
 # Two graphs are plotted, one for the in-cylinder pressure and one for the $\textit{HRR}$. In both figures, the experimental curve is represented in a dashed black line and the simulated one in red continuous one.
 
-# In[ ]:
+# In[64]:
 
 
 # %% Plot data with matplotlib and save in the folder
